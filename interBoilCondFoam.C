@@ -48,6 +48,7 @@ Description
 #include "localEulerDdtScheme.H"
 #include "CrankNicolsonDdtScheme.H"
 #include "subCycle.H"
+#include "smoothedInterfaceProperties.H"
 #include "phaseChangeTwoPhaseMixture.H"
 #include "turbulentTransportModel.H"
 #include "pimpleControl.H"

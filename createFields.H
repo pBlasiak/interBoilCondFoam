@@ -213,6 +213,8 @@ surfaceScalarField rhoPhi
     fvc::interpolate(rho)*phi
 );
 
+// Construct interface from alpha1 distribution
+smoothedInterfaceProperties interface(alpha1, U, mixture());
 
 // Construct incompressible turbulence model
 autoPtr<incompressible::turbulenceModel> turbulence

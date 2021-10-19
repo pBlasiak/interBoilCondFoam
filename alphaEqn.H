@@ -45,13 +45,13 @@
     scalar cnCoeff = 1.0/(1.0 + ocCoeff);
 
     // Standard face-flux compression coefficient
-    surfaceScalarField phic(mixture->cAlpha()*mag(phi/mesh.magSf()));
+    surfaceScalarField phic(interface.cAlpha()*mag(phi/mesh.magSf()));
 
     // Add the optional isotropic compression contribution
     if (icAlpha > 0)
     {
         phic *= (1.0 - icAlpha);
-        phic += (mixture->cAlpha()*icAlpha)*fvc::interpolate(mag(U));
+        phic += (interface.cAlpha()*icAlpha)*fvc::interpolate(mag(U));
     }
 
     surfaceScalarField::Boundary& phicBf =
@@ -149,14 +149,16 @@
 
         alpha2 = 1.0 - alpha1;
 
-        mixture->correct();
+		// nie wiem czy to dobrze jest
+		// brane jest z interFoam
+        interface.correct();
     }
 
     volScalarField alpha10("alpha10", alpha1);
 
     for (int aCorr=0; aCorr<nAlphaCorr; aCorr++)
     {
-        surfaceScalarField phir(phic*mixture->nHatf());
+        surfaceScalarField phir(phic*interface.nHatf());
 
         alphaPhiUn =
             (
@@ -236,7 +238,9 @@
 
         alpha2 = 1.0 - alpha1;
 
-        mixture->correct();
+		// nie wiem czy to dobrze jest
+		// brane jest z interFoam
+        interface.correct();
     }
 
     if (alphaApplyPrevCorr && MULESCorr)
