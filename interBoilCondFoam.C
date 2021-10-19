@@ -111,14 +111,12 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-			// tu by musialo byc obliczenie strumieni masy
-			//mixture->correct();
+			mixture->correct();
 
             #include "alphaControls.H"
             #include "alphaEqnSubCycle.H"
 
-			// tu powinno byc interface correct
-            mixture->correct();
+            interface.correct();
 
             #include "UEqn.H"
 			#include "TControls.H"
@@ -135,13 +133,6 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
         }
-
-		// czy to jest tu potrzebne?
-		// chyba do aktualizacji Tsat bylo?
-		// albo robic korekte na przed petla albo po niej
-		// trzeba sprawdziac co robi correct w danej klasie i zastanowic
-		// sie czy wszystko ma byc aktualizowane (np. interfejs i nu)
-        //mixture->correct();
 
 		//if (printWallHeatFluxes)
 		//{
