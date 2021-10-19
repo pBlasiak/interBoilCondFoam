@@ -110,9 +110,13 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+			// tu by musialo byc obliczenie strumieni masy
+			//mixture->correct();
+
             #include "alphaControls.H"
             #include "alphaEqnSubCycle.H"
 
+			// tu powinno byc interface correct
             mixture->correct();
 
             #include "UEqn.H"
@@ -136,7 +140,7 @@ int main(int argc, char *argv[])
 		// albo robic korekte na przed petla albo po niej
 		// trzeba sprawdziac co robi correct w danej klasie i zastanowic
 		// sie czy wszystko ma byc aktualizowane (np. interfejs i nu)
-        mixture->correct();
+        //mixture->correct();
 
 		//if (printWallHeatFluxes)
 		//{
