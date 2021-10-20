@@ -49,7 +49,10 @@ IOdictionary transportProperties
 
 dimensionedScalar Prt
 (
-	transportProperties.lookup("Prt")
+    "Prt",
+	dimless,
+	transportProperties
+	//transportProperties.lookup("Prt")
 );
 
 bool printWallHeatFluxes
