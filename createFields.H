@@ -60,6 +60,11 @@ bool printWallHeatFluxes
 	transportProperties.lookupOrDefault("printWallHeatFluxes", false)
 );
 
+bool printMassFluxes
+(
+	transportProperties.lookupOrDefault("printMassFluxes", false)
+);
+
 volScalarField p
 (
     IOobject
