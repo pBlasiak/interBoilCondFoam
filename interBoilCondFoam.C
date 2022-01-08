@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
         while (pimple.loop())
         {
 			mixture->correct();
+			mixture->HardtWondra();
 
             #include "alphaControls.H"
             #include "alphaEqnSubCycle.H"
