@@ -17,6 +17,8 @@
 	
 	// trzeba zmienic w BC dla q na rhoCp i wtedy cp nie bedzie potrzebne
 	//cp = mixture->cp();
+	//
+	volScalarField correctionTerm = mixture->correctionTerm();
 	
 
 	fvScalarMatrix TEqn
@@ -26,7 +28,8 @@
 	    - fvm::Sp(fvc::div(phi),T)
 		- fvm::laplacian(alphaEff, T,"laplacian(alphaEff,T)")
 	 ==
-		  fvm::Sp(vDotcmvT/rhoCp, T) - vDotcmvT/rhoCp*TSat	
+		  fvm::Sp(vDotcmvT/rhoCp, T) - vDotcmvT/rhoCp*TSat
+		+ fvm::Sp(correctionTerm/rhoCp, T)
 	);
 
     TEqn.relax();
