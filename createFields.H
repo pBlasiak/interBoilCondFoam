@@ -52,7 +52,6 @@ dimensionedScalar Prt
     "Prt",
 	dimless,
 	transportProperties
-	//transportProperties.lookup("Prt")
 );
 
 bool printWallHeatFluxes
@@ -107,6 +106,37 @@ volVectorField U
 );
 
 #include "createPhi.H"
+
+Info<< "Creating field k\n" << endl;
+volScalarField k
+(
+    IOobject
+    (
+        "k",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+	mesh,
+    dimensionedScalar("k00", dimPower/dimLength/dimTemperature, 0)
+);
+// Need to store for turbulentHeatFluxTemperature BC
+Info<< "Creating field cp\n" << endl;
+volScalarField cp
+(
+    IOobject
+    (
+        "cp",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+	mesh,
+    dimensionedScalar("cp00", dimensionSet(0,2,-2,-1,0,0,0), 0)
+);
+//cp = mixture->cp();
 
 
 Info<< "Creating phaseChangeTwoPhaseMixture\n" << endl;
@@ -189,22 +219,6 @@ volScalarField alphaEff
     //dimensionedScalar("alphaEff0", dimensionSet(0,2,-1,0,0,0,0), 0)
 );
 
-// Need to store for turbulentHeatFluxTemperature BC
-//Info<< "Creating field cp\n" << endl;
-//volScalarField cp
-//(
-//    IOobject
-//    (
-//        "cp",
-//        runTime.timeName(),
-//        mesh,
-//        IOobject::NO_READ,
-//        IOobject::NO_WRITE
-//    ),
-//	mesh,
-//    dimensionedScalar("cp00", dimensionSet(0,2,-2,-1,0,0,0), 0)
-//);
-//cp = mixture->cp();
 
 
 // Mass flux

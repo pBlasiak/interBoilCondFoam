@@ -112,6 +112,8 @@ int main(int argc, char *argv[])
         while (pimple.loop())
         {
 			mixture->correct();
+			rhoCp == alpha1*rho1*cp1 + alpha2*rho2*cp2;
+			//rhoCp = rho*cp; // ??? 
 			mixture->HardtWondra();
 
             #include "alphaControls.H"
