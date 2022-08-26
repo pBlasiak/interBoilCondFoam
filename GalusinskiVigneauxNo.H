@@ -51,8 +51,8 @@ scalarField tauRho(0.0);
 scalarField tauMu(0.0);
 //scalar GVdt = 0.0;
 
-	tauRho = sqrt(mixture->rho()*pow(CellDims.field(), 3)/interface.sigma().value());
-	tauMu  = mixture->mu()*CellDims.field()/interface.sigma().value();
+	tauRho = sqrt(mixture->rho()*pow(CellDims.field(), 3)/max(interface.sigma().value(), SMALL));
+	tauMu  = mixture->mu()*CellDims.field()/max(interface.sigma().value(), SMALL);
 
     GalusinskiVigneauxNum = gMax( 1.0/(0.5*(C2*tauMu + sqrt(pow(C2*tauMu, 2) + 4*C1*tauRho*tauRho)))*
 								runTime.deltaTValue());
