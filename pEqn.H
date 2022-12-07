@@ -39,16 +39,10 @@
     {
         fvScalarMatrix p_rghEqn
         (
-//            fvm::laplacian(rAUf, p_rgh) == fvc::div(phiHbyA)
-//		-	fvm::SuSp(vDotcP-vDotvP,p_rgh) + (vDotcP-vDotvP)*(pSat-rho*gh) 
-//	//	-	fvm::Sp(vDotcP,p_rgh) - vDotvP + vDotcP*(pSat-rho*gh) 
-//		//  -	(vDotcP + vDotvP)
             fvc::div(phiHbyA) - fvm::laplacian(rAUf, p_rgh)
 		==
-			//fvm::Sp(vDotcP-vDotvP,p_rgh) - (vDotcP-vDotvP)*(pSat-rho*gh) 
-		//-	fvm::SuSp(-vDotcmvP,p_rgh) - (vDotcmvP)*(pSat-rho*gh) 
-		//-	fvm::Sp(-vDotcmvP,p_rgh) - (vDotcmvP)*(pSat-rho*gh) // chyba daje te same wyniki co z SuSp i troche szybciej liczy ale trzeba sprawdzic fvm::Sp(vDotcmvP,p_rgh) - (vDotcmvP)*(pSat-rho*gh) // chyba daje te same wyniki co z SuSp i troche szybciej liczy ale trzeba sprawdzic
-		    fvm::Sp(vDotcmvP,p_rgh) - (vDotcmvP)*(pSat-rho*gh) // chyba daje te same wyniki co z SuSp i troche szybciej liczy ale trzeba sprawdzic
+			// implicit implementation with pSat gives zero interface velocity
+			vDotcmvP
         );
 
         p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
