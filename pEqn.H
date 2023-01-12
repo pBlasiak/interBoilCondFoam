@@ -31,13 +31,14 @@
     //const volScalarField& vDotvP = vDotP[1](); // it should be (+) for evaporation and 0 for condensation
     //const volScalarField vDotcmvP = vDotcP - vDotvP;
     Pair<tmp<volScalarField>> pSource = mixture->pSource();
-    const volScalarField& Sp = pSource[0](); // it should be 0 for evaporation and (-) for condensation
-    const volScalarField& Su = pSource[1](); // it should be (+) for evaporation and 0 for condensation
-	//if (printMassFluxes)
-	//{
-	//	Info<< "vDotcP = " << vDotcP << endl;
-	//	Info<< "vDotvP = " << vDotvP << endl;
-	//}
+    const volScalarField& vDotcP = pSource[0](); // it should be 0 for evaporation and (-) for condensation
+    const volScalarField& vDotvP = pSource[1](); // it should be (+) for evaporation and 0 for condensation
+    const volScalarField vDotcmvP = vDotcP - vDotvP;
+	if (printMassFluxes)
+	{
+		Info<< "vDotcP = " << vDotcP << endl;
+		Info<< "vDotvP = " << vDotvP << endl;
+	}
     while (pimple.correctNonOrthogonal())
     {
         fvScalarMatrix p_rghEqn
@@ -49,8 +50,7 @@
             fvc::div(phiHbyA) - fvm::laplacian(rAUf, p_rgh)
 		==
 			//vDotcmvP
-//			vDotcP + vDotvP
-			Sp + Su
+			vDotcP + vDotvP
         );
 
         p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));

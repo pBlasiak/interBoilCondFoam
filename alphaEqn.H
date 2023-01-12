@@ -84,82 +84,83 @@
     //const volScalarField vDotvmcAlphal(vDotvAlphal - vDotcAlphal);
     Pair<tmp<volScalarField>> alphaSource =
         mixture->alphaSource();
-    const volScalarField& alphaSp = alphaSource[0](); // it should be 0 for evaporation and (+) for condensation
-    const volScalarField& alphaSu = alphaSource[1](); // it should be (-) for evaporation and 0 for condensation
-	//if (printMassFluxes)
-	//{
-	//Info<< "vDotcAlphal = " << vDotcAlphal << endl; 
-	//Info<< "vDotvAlphal = " << vDotvAlphal << endl; 
-	//}
+    const volScalarField& vDotcAlphal = alphaSource[0](); // it should be 0 for evaporation and (+) for condensation
+    const volScalarField& vDotvAlphal = alphaSource[1](); // it should be (-) for evaporation and 0 for condensation
+    const volScalarField vDotvmcAlphal(vDotvAlphal - vDotcAlphal);
+	if (printMassFluxes)
+	{
+	Info<< "vDotcAlphal = " << vDotcAlphal << endl; 
+	Info<< "vDotvAlphal = " << vDotvAlphal << endl; 
+	}
 
     if (MULESCorr)
     {
 		Info<< "Jestem w MULESCorr" << endl;
-        //fvScalarMatrix alpha1Eqn
-        //(
-        //    (
-        //        LTS
-        //      ? fv::localEulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
-        //      : fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
-        //    )
-        //  + fv::gaussConvectionScheme<scalar>
-        //    (
-        //        mesh,
-        //        phiCN,
-        //        upwind<scalar>(mesh, phiCN)
-        //    ).fvmDiv(phiCN, alpha1)
-        //  - fvm::Sp(divU, alpha1)
-        // ==
-        //    fvm::Sp(vDotvmcAlphal, alpha1)
-        //  + vDotcAlphal
-        //);
+        fvScalarMatrix alpha1Eqn
+        (
+            (
+                LTS
+              ? fv::localEulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+              : fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+            )
+          + fv::gaussConvectionScheme<scalar>
+            (
+                mesh,
+                phiCN,
+                upwind<scalar>(mesh, phiCN)
+            ).fvmDiv(phiCN, alpha1)
+          - fvm::Sp(divU, alpha1)
+         ==
+            fvm::Sp(vDotvmcAlphal, alpha1)
+          + vDotcAlphal
+        );
 
-        //alpha1Eqn.solve();
+        alpha1Eqn.solve();
 
-        //Info<< "Phase-1 volume fraction = "
-        //    << alpha1.weightedAverage(mesh.Vsc()).value()
-        //    << "  Min(" << alpha1.name() << ") = " << min(alpha1).value()
-        //    << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
-        //    << endl;
+        Info<< "Phase-1 volume fraction = "
+            << alpha1.weightedAverage(mesh.Vsc()).value()
+            << "  Min(" << alpha1.name() << ") = " << min(alpha1).value()
+            << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
+            << endl;
 
-        //tmp<surfaceScalarField> talphaPhiUD(alpha1Eqn.flux());
-        //alphaPhi = talphaPhiUD();
+        tmp<surfaceScalarField> talphaPhiUD(alpha1Eqn.flux());
+        alphaPhi = talphaPhiUD();
 
-		//// Nie wiem czy to jest dobrze
-        //if (alphaApplyPrevCorr && talphaPhiCorr0.valid())
-        //{
-        //    Info<< "Applying the previous iteration compression flux" << endl;
-        //    //MULES::correct(alpha1, alphaPhi, talphaPhiCorr0.ref(), oneField(), zeroField());
-		//	volScalarField alpha10("alpha10", alpha1);
-        //    volScalarField alpha100("alpha100", alpha10);
-        //    alpha10 = alpha1;
-        //    MULES::correct
-        //    (
-        //        geometricOneField(),
-        //        alpha1,
-        //        alphaPhi,
-        //        talphaPhiCorr0.ref(),
-        //        vDotvmcAlphal,
-        //        (
-        //            divU*(alpha10 - alpha100)
-        //            //divU*alpha10 
-        //          - vDotvmcAlphal*alpha10
-        //        )(),
-        //        oneField(),
-        //        zeroField()
-        //    );
+		// Nie wiem czy to jest dobrze
+        if (alphaApplyPrevCorr && talphaPhiCorr0.valid())
+        {
+            Info<< "Applying the previous iteration compression flux" << endl;
+            //MULES::correct(alpha1, alphaPhi, talphaPhiCorr0.ref(), oneField(), zeroField());
+			volScalarField alpha10("alpha10", alpha1);
+            volScalarField alpha100("alpha100", alpha10);
+            alpha10 = alpha1;
+            MULES::correct
+            (
+                geometricOneField(),
+                alpha1,
+                alphaPhi,
+                talphaPhiCorr0.ref(),
+                vDotvmcAlphal,
+                (
+                    divU*(alpha10 - alpha100)
+                    //divU*alpha10 
+                  - vDotvmcAlphal*alpha10
+                )(),
+                oneField(),
+                zeroField()
+            );
 
-        //    alphaPhi += talphaPhiCorr0();
-        //}
+            alphaPhi += talphaPhiCorr0();
+        }
 
-        //// Cache the upwind-flux
-        //talphaPhiCorr0 = talphaPhiUD;
+        // Cache the upwind-flux
+        talphaPhiCorr0 = talphaPhiUD;
 
-        //alpha2 = 1.0 - alpha1;
+        alpha2 = 1.0 - alpha1;
 
-		//// nie wiem czy to dobrze jest
-		//// brane jest z interFoam
-        //interface.correct();
+		// nie wiem czy to dobrze jest
+		// brane jest z interFoam
+        interface.correct();
     }
 
     volScalarField alpha10("alpha10", alpha1);
@@ -194,38 +195,38 @@
         if (MULESCorr)
         {
 		Info<< "Jestem w MULESCorr" << endl;
-            //tmp<surfaceScalarField> talphaPhiCorr(alphaPhiUn - alphaPhi);
-            ////volScalarField alpha10("alpha10", alpha1);
-            //volScalarField alpha100("alpha100", alpha10);
-            //alpha10 = alpha1;
+            tmp<surfaceScalarField> talphaPhiCorr(alphaPhiUn - alphaPhi);
+            //volScalarField alpha10("alpha10", alpha1);
+            volScalarField alpha100("alpha100", alpha10);
+            alpha10 = alpha1;
 
-            ////MULES::correct(alpha1, alphaPhiUn, talphaPhiCorr.ref(), 1, 0);
-            //MULES::correct
-            //(
-            //    geometricOneField(),
-            //    alpha1,
-            //    alphaPhiUn,
-            //    talphaPhiCorr.ref(),
-            //    vDotvmcAlphal,
-            //    (
-            //        divU*(alpha10 - alpha100)
-            //        //divU*alpha10 
-            //      - vDotvmcAlphal*alpha10
-            //    )(),
-            //    oneField(),
-            //    zeroField()
-            //);
+            //MULES::correct(alpha1, alphaPhiUn, talphaPhiCorr.ref(), 1, 0);
+            MULES::correct
+            (
+                geometricOneField(),
+                alpha1,
+                alphaPhiUn,
+                talphaPhiCorr.ref(),
+                vDotvmcAlphal,
+                (
+                    divU*(alpha10 - alpha100)
+                    //divU*alpha10 
+                  - vDotvmcAlphal*alpha10
+                )(),
+                oneField(),
+                zeroField()
+            );
 
-            //// Under-relax the correction for all but the 1st corrector
-            //if (aCorr == 0)
-            //{
-            //    alphaPhi += talphaPhiCorr();
-            //}
-            //else
-            //{
-            //    alpha1 = 0.5*alpha1 + 0.5*alpha10;
-            //    alphaPhi += 0.5*talphaPhiCorr();
-            //}
+            // Under-relax the correction for all but the 1st corrector
+            if (aCorr == 0)
+            {
+                alphaPhi += talphaPhiCorr();
+            }
+            else
+            {
+                alpha1 = 0.5*alpha1 + 0.5*alpha10;
+                alphaPhi += 0.5*talphaPhiCorr();
+            }
         }
         else
         {
@@ -239,10 +240,8 @@
 				alpha1, 
 				phiCN, 
 				alphaPhi, 
-				//vDotvmcAlphal, 
-				alphaSp,
-                //(divU*alpha1 + vDotcAlphal)(),
-                (divU*alpha1 + alphaSu)(),
+				vDotvmcAlphal, 
+                (divU*alpha1 + vDotcAlphal)(),
                 oneField(),
                 zeroField()
             );

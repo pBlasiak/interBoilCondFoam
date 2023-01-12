@@ -4,14 +4,17 @@
 	//	const volScalarField& vDotvT = vDotT[1](); // it should be (+) for evaporation and 0 for condensation
 	//    const volScalarField vDotcmvT(vDotcT - vDotvT);
 	Pair<tmp<volScalarField>> TSource = mixture->TSource();
-		const volScalarField& TSp = TSource[0](); // it should be 0 for evaporation and (-) for condensation
-		const volScalarField& TSu = TSource[1](); // it should be (+) for evaporation and 0 for condensation
+		const volScalarField& vDotcT = TSource[0](); // it should be 0 for evaporation and (-) for condensation
+		const volScalarField& vDotvT = TSource[1](); // it should be (+) for evaporation and 0 for condensation
+			Info<< "HHH" << endl;
+	    //const volScalarField vDotcmvT(vDotcT - vDotvT);
+	    const volScalarField vDotcmvT(vDotcT );
 
-	//if (printMassFluxes)
-	//{
-	//Info<< "vDotcT = " << vDotcT << endl; 
-	//Info<< "vDotvT = " << vDotvT << endl; 
-	//}
+	if (printMassFluxes)
+	{
+	Info<< "vDotcT = " << vDotcT << endl; 
+	Info<< "vDotvT = " << vDotvT << endl; 
+	}
 
 	//TSat = mixture->TSat();
     alphat = turbulence->nut()/Prt;
@@ -29,8 +32,8 @@
 	    - fvm::Sp(fvc::div(phi),T)
 		- fvm::laplacian(alphaEff, T,"laplacian(alphaEff,T)")
 	 ==
-		  fvm::Sp(TSp/rhoCp, T) - TSu/rhoCp	
-		  //fvm::Sp(vDotcmvT/rhoCp, T) - vDotcmvT/rhoCp*TSat	
+		  //fvm::Sp(TSp/rhoCp, T) - TSu/rhoCp	
+		  fvm::Sp(vDotcmvT/rhoCp, T) - vDotcmvT/rhoCp*TSat	
 	);
 
     TEqn.relax();
