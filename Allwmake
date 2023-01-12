@@ -8,7 +8,7 @@ targetType=libso
 . $WM_PROJECT_DIR/wmake/scripts/AllwmakeParseArguments
 set -x
 
-wmake
+wmake -with-bear
 #wmake interDyMFoam
 
 #------------------------------------------------------------------------------
