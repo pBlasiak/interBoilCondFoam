@@ -33,7 +33,7 @@
     Pair<tmp<volScalarField>> pSource = mixture->pSource();
     const volScalarField& vDotcP = pSource[0](); // it should be 0 for evaporation and (-) for condensation
     const volScalarField& vDotvP = pSource[1](); // it should be (+) for evaporation and 0 for condensation
-    const volScalarField vDotcmvP = vDotcP - vDotvP;
+    const volScalarField vDotcmvP = vDotcP;
 	if (printMassFluxes)
 	{
 		Info<< "vDotcP = " << vDotcP << endl;
@@ -50,7 +50,8 @@
             fvc::div(phiHbyA) - fvm::laplacian(rAUf, p_rgh)
 		==
 			//vDotcmvP
-			vDotcP + vDotvP
+		    fvm::Sp(vDotcmvP,p_rgh) - (vDotcmvP)*(pSat-rho*gh) // chyba daje te same wyniki co z SuSp i troche szybciej liczy ale trzeba sprawdzic
+//			vDotcP + vDotvP
         );
 
         p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
